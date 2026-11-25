@@ -42,7 +42,6 @@ export default function AdminDashboardPage() {
   const [search, setSearch] = useState("");
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const [closingRoomId, setClosingRoomId] = useState<string | null>(null);
-  const [syncingOperators, setSyncingOperators] = useState(false);
 
   const isSuperAdmin = user?.roleId === "super-administrator";
 
@@ -151,27 +150,6 @@ export default function AdminDashboardPage() {
     }
   }
 
-  async function handleSyncOperators() {
-    setSyncingOperators(true);
-    try {
-      const res = await api.post("/operators/sync", {});
-      pushToast({
-        tone: "success",
-        title: "Operators synced",
-        description: res.data?.message || "Operator database is up to date.",
-      });
-      await loadDashboard();
-    } catch (err) {
-      pushToast({
-        tone: "error",
-        title: "Operator sync failed",
-        description: getErrorMessage(err),
-      });
-    } finally {
-      setSyncingOperators(false);
-    }
-  }
-
   if (!initialized || !user) {
     return (
       <div className="flex-1 flex items-center justify-center p-8 text-xs text-[var(--muted-foreground)]">
@@ -222,17 +200,6 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="md"
-            onClick={() => void handleSyncOperators()}
-            disabled={syncingOperators}
-          >
-            <Database
-              className={`h-3.5 w-3.5 ${syncingOperators ? "animate-pulse" : ""}`}
-            />
-            {syncingOperators ? "SYNCING..." : "SYNC OPERATORS"}
-          </Button>
           <Button
             variant="ghost"
             size="md"

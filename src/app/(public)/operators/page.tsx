@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { fetchPublicOperators } from "@/lib/operators-catalog";
+import {
+  fetchIsServerAdmin,
+  fetchPublicOperators,
+} from "@/lib/operators-catalog";
 import { OperatorCatalogClient } from "./OperatorCatalogClient";
 import { OperatorSyncButton } from "./OperatorSyncButton";
 
@@ -13,7 +16,8 @@ export const metadata: Metadata = {
 };
 
 export default async function OperatorsPage() {
-  const operators = await fetchPublicOperators();
+  const isAdmin = await fetchIsServerAdmin();
+  const operators = await fetchPublicOperators({ includeDisabled: isAdmin });
 
   return (
     <div className="max-w-6xl mx-auto w-full px-4 py-12 space-y-8">

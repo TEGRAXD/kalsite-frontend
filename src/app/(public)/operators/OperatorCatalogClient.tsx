@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import {
   ClassBadge,
   OperatorPortraitBadge,
   RarityStars,
 } from "@/components/OperatorCard";
+import { api } from "@/lib/api";
 import { OPERATOR_CLASSES } from "@/lib/constants";
 import { formatOperatorName, type Operator } from "@/lib/types";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 type SortMode = "newest" | "oldest" | "name";
 
@@ -18,14 +20,47 @@ export function OperatorCatalogClient({
 }: {
   operators: Operator[];
 }) {
+  const { user } = useAuthStore();
+  const isAdmin =
+    user?.roleId === "administrator" ||
+    user?.roleId === "super-administrator";
+
+  const [items, setItems] = useState<Operator[]>(operators);
   const [search, setSearch] = useState("");
   const [selectedClass, setSelectedClass] = useState<string>("ALL");
   const [selectedRarity, setSelectedRarity] = useState<number | "ALL">("ALL");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
 
+  useEffect(() => {
+    setItems(operators);
+  }, [operators]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    let cancelled = false;
+    api
+      .get("/operators", { params: { includeDisabled: true } })
+      .then((res) => {
+        if (!cancelled && Array.isArray(res.data?.data)) {
+          setItems(res.data.data as Operator[]);
+        }
+      })
+      .catch(() => {
+        // Keep initial SSR items
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin]);
+
+  const visibleItems = useMemo(
+    () => (isAdmin ? items : items.filter((op) => op.isEnabled !== false)),
+    [items, isAdmin],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const list = operators.filter((op) => {
+    const list = visibleItems.filter((op) => {
       if (selectedClass !== "ALL" && op.operatorClass !== selectedClass) {
         return false;
       }
@@ -58,7 +93,7 @@ export function OperatorCatalogClient({
       if (a.rarity !== b.rarity) return b.rarity - a.rarity;
       return a.name.localeCompare(b.name);
     });
-  }, [operators, search, selectedClass, selectedRarity, sortMode]);
+  }, [visibleItems, search, selectedClass, selectedRarity, sortMode]);
 
   return (
     <div className="space-y-6">
@@ -145,7 +180,7 @@ export function OperatorCatalogClient({
               ))}
             </div>
             <span className="text-[11px] text-[var(--muted-foreground)]">
-              SHOWING {filtered.length} / {operators.length}
+              SHOWING {filtered.length} / {visibleItems.length}
             </span>
           </div>
         </div>
@@ -157,35 +192,47 @@ export function OperatorCatalogClient({
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((op) => (
-            <Link
-              key={op.slug}
-              href={`/operators/${op.slug}`}
-              className="border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--primary)] transition-colors flex items-start gap-3"
-            >
-              <OperatorPortraitBadge operator={op} size="md" />
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="text-sm font-bold leading-snug break-words">
-                    {formatOperatorName(op)}
-                  </h2>
-                  <span className="shrink-0">
-                    <RarityStars rarity={op.rarity} />
-                  </span>
+          {filtered.map((op) => {
+            const isDisabled = op.isEnabled === false;
+            return (
+              <Link
+                key={op.slug}
+                href={`/operators/${op.slug}`}
+                className={`border border-[var(--border)] bg-[var(--card)] p-4 hover:border-[var(--primary)] transition-all flex items-start gap-3 ${
+                  isDisabled
+                    ? "opacity-45 grayscale hover:opacity-75 border-dashed"
+                    : ""
+                }`}
+              >
+                <OperatorPortraitBadge operator={op} size="md" />
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <h2 className="text-sm font-bold leading-snug break-words">
+                      {formatOperatorName(op)}
+                    </h2>
+                    <span className="shrink-0">
+                      <RarityStars rarity={op.rarity} />
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--muted-foreground)] truncate">
+                    {op.cnName}
+                    {op.faction ? ` · ${op.faction}` : ""}
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                    <ClassBadge operatorClass={op.operatorClass} />
+                    <span className="text-[10px] text-[var(--muted-foreground)]">
+                      {op.branch}
+                    </span>
+                    {isDisabled && (
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border border-zinc-500/50 bg-zinc-500/15 text-zinc-400">
+                        DISABLED
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <p className="text-[11px] text-[var(--muted-foreground)] truncate">
-                  {op.cnName}
-                  {op.faction ? ` · ${op.faction}` : ""}
-                </p>
-                <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                  <ClassBadge operatorClass={op.operatorClass} />
-                  <span className="text-[10px] text-[var(--muted-foreground)]">
-                    {op.branch}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
