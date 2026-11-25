@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { api, getErrorMessage } from "@/lib/api";
+import { wsClient } from "@/lib/ws";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRoomStore } from "@/stores/useRoomStore";
 import { useUiStore } from "@/stores/useUiStore";
@@ -55,6 +56,33 @@ export function RoomBrowser() {
     if (!user) return;
     void fetchRooms();
   }, [user, filters.status, filters.page, fetchRooms]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleRefresh = () => {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null;
+        void fetchRooms({ silent: true });
+      }, 150);
+    };
+
+    const offListUpdated = wsClient.on("rooms:list-updated", scheduleRefresh);
+    const offStatus = wsClient.onStatus((connected) => {
+      if (connected) scheduleRefresh();
+    });
+
+    wsClient.connectRoomList();
+
+    return () => {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      offListUpdated();
+      offStatus();
+      wsClient.disconnectRoomList();
+    };
+  }, [user, fetchRooms]);
 
   async function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();

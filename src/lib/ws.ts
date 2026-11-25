@@ -14,10 +14,12 @@ export class KalsiteWebSocketClient {
   private statusListeners = new Set<(connected: boolean) => void>();
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private subscribedRoomCode: string | null = null;
+  private subscribedRoomList = false;
   private intentionallyClosed = false;
   private reconnectAttempt = 0;
 
   connect(roomCode: string) {
+    this.subscribedRoomList = false;
     this.subscribedRoomCode = roomCode;
     this.intentionallyClosed = false;
 
@@ -35,6 +37,36 @@ export class KalsiteWebSocketClient {
     this.openSocket();
   }
 
+  connectRoomList() {
+    this.subscribedRoomCode = null;
+    this.subscribedRoomList = true;
+    this.intentionallyClosed = false;
+
+    if (
+      this.socket &&
+      (this.socket.readyState === WebSocket.OPEN ||
+        this.socket.readyState === WebSocket.CONNECTING)
+    ) {
+      if (this.socket.readyState === WebSocket.OPEN) {
+        this.send("rooms:subscribe", {});
+      }
+      return;
+    }
+
+    this.openSocket();
+  }
+
+  disconnectRoomList() {
+    if (!this.subscribedRoomList) return;
+    this.subscribedRoomList = false;
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.send("rooms:unsubscribe", {});
+    }
+    if (!this.subscribedRoomCode) {
+      this.disconnect();
+    }
+  }
+
   private openSocket() {
     if (typeof window === "undefined") return;
 
@@ -46,6 +78,8 @@ export class KalsiteWebSocketClient {
       this.notifyStatus(true);
       if (this.subscribedRoomCode) {
         this.send("room:subscribe", { roomCode: this.subscribedRoomCode });
+      } else if (this.subscribedRoomList) {
+        this.send("rooms:subscribe", {});
       }
     };
 
@@ -66,7 +100,10 @@ export class KalsiteWebSocketClient {
     ws.onclose = () => {
       this.notifyStatus(false);
       this.socket = null;
-      if (!this.intentionallyClosed && this.subscribedRoomCode) {
+      if (
+        !this.intentionallyClosed &&
+        (this.subscribedRoomCode || this.subscribedRoomList)
+      ) {
         const delay = Math.min(1000 * 2 ** this.reconnectAttempt, 8000);
         this.reconnectAttempt += 1;
         this.reconnectTimer = setTimeout(() => this.openSocket(), delay);
@@ -81,6 +118,7 @@ export class KalsiteWebSocketClient {
   disconnect() {
     this.intentionallyClosed = true;
     this.subscribedRoomCode = null;
+    this.subscribedRoomList = false;
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;

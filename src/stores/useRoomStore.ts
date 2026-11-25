@@ -17,7 +17,7 @@ interface RoomStore {
   wsConnected: boolean;
   error: string | null;
   setFilters: (patch: Partial<RoomFilters>) => void;
-  fetchRooms: () => Promise<void>;
+  fetchRooms: (options?: { silent?: boolean }) => Promise<void>;
   setCurrentRoom: (room: RoomDetail | null) => void;
   setLobbyFeed: (feed: FeedItem[]) => void;
   appendLobbyFeed: (item: FeedItem) => void;
@@ -43,9 +43,11 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       filters: { ...state.filters, ...patch },
     })),
 
-  fetchRooms: async () => {
+  fetchRooms: async (options) => {
     const { search, status, page } = get().filters;
-    set({ loadingList: true, error: null });
+    if (!options?.silent) {
+      set({ loadingList: true, error: null });
+    }
     try {
       const res = await api.get("/rooms", {
         params: {
