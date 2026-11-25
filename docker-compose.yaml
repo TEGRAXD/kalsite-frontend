@@ -13,7 +13,8 @@ services:
       - .env
     command: ["bun", "run", "start"]
     ports:
-      - "3001:3000" # OUTSIDE:INSIDE (Left is used in tunnel)
+      # HOST:CONTAINER (OUTSIDE:INSIDE) — Docker cloudflared uses the RIGHT port: http://kalsite-frontend:3000
+      - "3001:3000"
     restart: unless-stopped
     networks:
       - cloudflared_tunnel
