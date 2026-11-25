@@ -2,19 +2,12 @@ import { create } from "zustand";
 import { api, getErrorMessage } from "@/lib/api";
 import type { User } from "@/lib/types";
 
-interface AuthProviders {
-  discord: boolean;
-  devLogin: boolean;
-}
-
 interface AuthStore {
   user: User | null;
   loading: boolean;
   initialized: boolean;
-  providers: AuthProviders;
   error: string | null;
   fetchUser: (force?: boolean) => Promise<User | null>;
-  fetchProviders: () => Promise<AuthProviders>;
   devLogin: (username: string) => Promise<User>;
   logout: () => Promise<void>;
 }
@@ -25,7 +18,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   loading: false,
   initialized: false,
-  providers: { discord: false, devLogin: true },
   error: null,
 
   fetchUser: async (force = false) => {
@@ -48,20 +40,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     })();
 
     return inFlightUser;
-  },
-
-  fetchProviders: async () => {
-    try {
-      const res = await api.get("/auth/providers");
-      const providers = res.data?.data as AuthProviders;
-      if (providers) {
-        set({ providers });
-        return providers;
-      }
-    } catch {
-      // Keep default fallback
-    }
-    return get().providers;
   },
 
   devLogin: async (username: string) => {

@@ -25,21 +25,21 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   oauth_network_error: "Network error communicating with Discord. Please try again.",
 };
 
+const IS_DEV = process.env.NODE_ENV !== "production";
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
   const nextPath = getSafeNextPath(searchParams.get("next"));
-  const { user, providers, loading, fetchProviders, fetchUser, devLogin } =
-    useAuthStore();
+  const { user, loading, fetchUser, devLogin } = useAuthStore();
 
   const [codename, setCodename] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchProviders();
     void fetchUser();
-  }, [fetchProviders, fetchUser]);
+  }, [fetchUser]);
 
   useEffect(() => {
     if (user) {
@@ -83,32 +83,16 @@ function LoginContent() {
       )}
 
       <div className="space-y-2">
-        {providers.discord ? (
-          <a
-            href={`${API_URL}/auth/discord?next=${encodeURIComponent(nextPath)}`}
-            className="w-full h-11 px-4 inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border transition-colors bg-[#5865F2] text-white border-[#5865F2] hover:opacity-90"
-          >
-            CONTINUE WITH DISCORD
-            <ArrowRight className="h-4 w-4" />
-          </a>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="w-full h-11 px-4 inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border bg-[var(--secondary)] text-[var(--muted-foreground)] border-[var(--border)] opacity-60"
-          >
-            CONTINUE WITH DISCORD
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        )}
-        {!providers.discord && (
-          <p className="text-[11px] text-[var(--muted-foreground)]">
-            Discord login is not configured yet.
-          </p>
-        )}
+        <a
+          href={`${API_URL}/auth/discord?next=${encodeURIComponent(nextPath)}`}
+          className="w-full h-11 px-4 inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border transition-colors bg-[#5865F2] text-white border-[#5865F2] hover:opacity-90"
+        >
+          CONTINUE WITH DISCORD
+          <ArrowRight className="h-4 w-4" />
+        </a>
       </div>
 
-      {providers.devLogin && (
+      {IS_DEV && (
         <form
           onSubmit={handleDevSubmit}
           className="pt-4 border-t border-[var(--border)] space-y-3"
