@@ -12,6 +12,7 @@ import {
   SkipForward,
   Skull,
 } from "lucide-react";
+import { resolveAssetUrl } from "@/lib/constants";
 import {
   formatOperatorName,
   type Operator,
@@ -121,7 +122,7 @@ function OpponentCard({
           <>
             {player.operator.factionLogoUrl && (
               <img
-                src={player.operator.factionLogoUrl}
+                src={resolveAssetUrl(player.operator.factionLogoUrl) ?? ""}
                 alt=""
                 aria-hidden="true"
                 className="absolute right-3 bottom-2 h-16 w-16 object-contain opacity-15 invert dark:invert-0 select-none pointer-events-none"

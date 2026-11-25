@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { resolveAssetUrl } from "@/lib/constants";
 import type { PublicOperatorCard } from "@/lib/types";
 
 const CLASS_COLORS: Record<string, string> = {
@@ -52,10 +53,11 @@ export function OperatorPortraitBadge({
         ? "h-16 w-16 text-xl"
         : "h-11 w-11 text-sm";
 
+  const resolvedUrl = resolveAssetUrl(operator.imageUrl);
   const hasValidImage =
-    Boolean(operator.imageUrl) &&
-    (/^\/uploads\//i.test(operator.imageUrl || "") ||
-      /^https?:\/\//i.test(operator.imageUrl || "")) &&
+    Boolean(resolvedUrl) &&
+    (/^\/uploads\//i.test(resolvedUrl || "") ||
+      /^https?:\/\//i.test(resolvedUrl || "")) &&
     !imgFailed;
 
   if (hasValidImage) {
@@ -64,7 +66,7 @@ export function OperatorPortraitBadge({
         className={`shrink-0 border overflow-hidden bg-[var(--background)] ${colorClass} ${dims}`}
       >
         <img
-          src={operator.imageUrl!}
+          src={resolvedUrl!}
           alt={operator.name}
           loading="lazy"
           referrerPolicy="no-referrer"

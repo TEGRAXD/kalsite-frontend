@@ -7,6 +7,7 @@ import {
   OperatorPortraitBadge,
   RarityStars,
 } from "@/components/OperatorCard";
+import { resolveAssetUrl } from "@/lib/constants";
 import { fetchPublicOperatorBySlug } from "@/lib/operators-catalog";
 import { formatOperatorName } from "@/lib/types";
 
@@ -84,7 +85,7 @@ export default async function OperatorDetailPage({
               title={op.faction || undefined}
             >
               <img
-                src={op.factionLogoUrl}
+                src={resolveAssetUrl(op.factionLogoUrl) ?? ""}
                 alt={op.faction || "Faction"}
                 className="h-14 w-14 sm:h-28 sm:w-28 object-contain invert dark:invert-0"
               />
