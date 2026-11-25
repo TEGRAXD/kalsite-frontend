@@ -118,7 +118,7 @@ export function OperatorCatalogClient({
     if (selectedBranch !== "ALL") {
       chips.push({
         key: "branch",
-        label: `Subclass: ${selectedBranch}`,
+        label: `Branch: ${selectedBranch}`,
         clear: () => setSelectedBranch("ALL"),
       });
     }
@@ -244,7 +244,7 @@ export function OperatorCatalogClient({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name, CN, class, subclass, race, faction..."
+              placeholder="Search name, CN, class, branch, race, faction..."
               className="w-full h-9 pl-8 pr-8 bg-[var(--input)] border border-[var(--border)] text-xs focus:outline-none focus:border-[var(--primary)]"
             />
             {search && (
@@ -316,12 +316,12 @@ export function OperatorCatalogClient({
             </select>
 
             <select
-              aria-label="Filter by subclass"
+              aria-label="Filter by branch"
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
               className="h-8 px-2 bg-[var(--input)] border border-[var(--border)] text-[11px] focus:outline-none focus:border-[var(--primary)]"
             >
-              <option value="ALL">All Subclasses</option>
+              <option value="ALL">All Branches</option>
               {branchOptions.map((b) => (
                 <option key={b} value={b}>
                   {b}
