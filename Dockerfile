@@ -1,7 +1,7 @@
 # ============================================================
 # Stage 1: Build
 # ============================================================
-FROM oven/bun:1.3.10 AS builder
+FROM oven/bun:1.4 AS builder
 
 WORKDIR /usr/src/kalsite-frontend
 
@@ -35,7 +35,7 @@ RUN bun run build
 # ============================================================
 # Stage 2: Runtime
 # ============================================================
-FROM oven/bun:1.3.10
+FROM oven/bun:1.4
 
 WORKDIR /usr/src/kalsite-frontend
 
