@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { RefreshCw } from "lucide-react";
 import { fetchPublicOperators } from "@/lib/operators-catalog";
 import { OperatorCatalogClient } from "./OperatorCatalogClient";
+import { OperatorSyncButton } from "./OperatorSyncButton";
 
 export const metadata: Metadata = {
   title: "Operator Index",
@@ -29,13 +28,7 @@ export default async function OperatorsPage() {
           </p>
         </div>
 
-        <Link
-          href="/operators/manage"
-          className="inline-flex items-center gap-2 h-9 px-4 border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] text-xs uppercase tracking-wider shrink-0 transition-colors"
-        >
-          <RefreshCw className="h-3.5 w-3.5 text-[var(--primary)]" />
-          SYNC / UPDATE OPS
-        </Link>
+        <OperatorSyncButton />
       </header>
 
       <OperatorCatalogClient operators={operators} />

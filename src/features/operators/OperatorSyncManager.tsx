@@ -11,6 +11,7 @@ import {
   Download,
   Plus,
   RefreshCw,
+  ShieldAlert,
   Trash2,
 } from "lucide-react";
 import { api, getErrorMessage } from "@/lib/api";
@@ -87,11 +88,15 @@ export function OperatorSyncManager() {
     }
   }
 
+  const isAdmin =
+    user?.roleId === "administrator" ||
+    user?.roleId === "super-administrator";
+
   useEffect(() => {
-    if (user) {
+    if (isAdmin) {
       void loadOperators();
     }
-  }, [user]);
+  }, [isAdmin]);
 
   async function handleGitHubSync() {
     setSyncing(true);
@@ -195,6 +200,32 @@ export function OperatorSyncManager() {
     return (
       <div className="max-w-6xl mx-auto w-full px-4 py-12 text-xs text-[var(--muted-foreground)]">
         VERIFYING SESSION...
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="max-w-md w-full border border-rose-500/40 bg-[var(--card)] p-6 space-y-4 text-center">
+          <div className="mx-auto h-11 w-11 border border-rose-500/40 bg-rose-500/10 flex items-center justify-center text-rose-400">
+            <ShieldAlert className="h-5 w-5" />
+          </div>
+          <div className="space-y-1">
+            <h1 className="text-sm font-bold uppercase tracking-wider">
+              ACCESS RESTRICTED
+            </h1>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Administrator or Super Administrator permissions are required to
+              manage or sync Operators.
+            </p>
+          </div>
+          <Link href="/operators">
+            <Button variant="outline" size="sm">
+              BACK TO OPERATORS
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
