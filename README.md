@@ -66,6 +66,8 @@ Next.js embeds `NEXT_PUBLIC_*` variables at **build time** (and uses `NEXT_PUBLI
 | `NEXT_PUBLIC_WS_URL` | `ws://localhost:5000/ws` | Public backend WebSocket URL (`wss://...` in production) |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Public frontend URL (metadata, sitemap, robots) |
 | `NEXT_PUBLIC_SYSTEM_NAME` | `ZOOT` | System announcer label displayed in UI/guide |
+| `API_SECRET_KEY` | `kalsite-dev-api-secret-...` | Server-only API key sent by Next.js Server Components (`x-api-key`, never exposed to browser) |
+| `API_INTERNAL_URL` | *(empty)* | Optional internal backend URL for Next.js SSR inside Docker (e.g. `http://kalsite-backend:5000`) |
 
 ---
 

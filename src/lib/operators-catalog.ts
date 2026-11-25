@@ -1,21 +1,27 @@
 import type { Operator } from "./types";
 
-export const OPERATOR_CLASSES = [
-  "Vanguard",
-  "Guard",
-  "Defender",
-  "Sniper",
-  "Caster",
-  "Medic",
-  "Supporter",
-  "Specialist",
-] as const;
+function getServerApiBaseUrl(): string {
+  return (
+    process.env.API_INTERNAL_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:5000"
+  ).replace(/\/+$/, "");
+}
+
+function getServerApiHeaders(): HeadersInit {
+  const apiKey =
+    process.env.API_SECRET_KEY || "kalsite-dev-api-secret-change-in-production";
+  return {
+    "x-api-key": apiKey,
+  };
+}
 
 export async function fetchPublicOperators(): Promise<Operator[]> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const apiUrl = getServerApiBaseUrl();
   try {
     const res = await fetch(`${apiUrl}/operators`, {
-      next: { revalidate: 300 },
+      headers: getServerApiHeaders(),
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = (await res.json()) as { data?: Operator[] };
@@ -28,10 +34,11 @@ export async function fetchPublicOperators(): Promise<Operator[]> {
 export async function fetchPublicOperatorBySlug(
   slug: string,
 ): Promise<Operator | undefined> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const apiUrl = getServerApiBaseUrl();
   try {
     const res = await fetch(`${apiUrl}/operators/${encodeURIComponent(slug)}`, {
-      next: { revalidate: 300 },
+      headers: getServerApiHeaders(),
+      cache: "no-store",
     });
     if (res.ok) {
       const json = (await res.json()) as { data?: Operator };

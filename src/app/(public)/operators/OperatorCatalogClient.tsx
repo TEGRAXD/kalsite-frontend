@@ -8,7 +8,7 @@ import {
   OperatorPortraitBadge,
   RarityStars,
 } from "@/components/OperatorCard";
-import { OPERATOR_CLASSES } from "@/lib/operators-catalog";
+import { OPERATOR_CLASSES } from "@/lib/constants";
 import { formatOperatorName, type Operator } from "@/lib/types";
 
 type SortMode = "newest" | "oldest" | "name";

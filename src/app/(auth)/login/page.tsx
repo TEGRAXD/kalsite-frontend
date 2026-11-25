@@ -14,6 +14,17 @@ function getSafeNextPath(raw: string | null): string {
   return raw;
 }
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  discord_not_configured: "Discord OAuth is not configured on the backend yet.",
+  access_denied: "Discord sign-in was cancelled.",
+  missing_code: "Discord did not return an authorization code. Please try again.",
+  invalid_oauth_state: "Your sign-in session expired. Please try again.",
+  token_exchange_failed:
+    "Discord token exchange failed. Check DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, and DISCORD_REDIRECT_URI.",
+  discord_profile_failed: "Unable to load your Discord profile. Please try again.",
+  oauth_network_error: "Network error communicating with Discord. Please try again.",
+};
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,22 +74,33 @@ function LoginContent() {
       {(errorParam || formError) && (
         <div className="border border-red-500/50 bg-red-500/10 p-3 text-xs text-red-400 flex items-start gap-2">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>{formError || `Auth error: ${errorParam}`}</span>
+          <span>
+            {formError ||
+              (errorParam && AUTH_ERROR_MESSAGES[errorParam]) ||
+              `Auth error: ${errorParam}`}
+          </span>
         </div>
       )}
 
       <div className="space-y-2">
-        <a
-          href={`${API_URL}/auth/discord?next=${encodeURIComponent(nextPath)}`}
-          className={`w-full h-11 px-4 inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border transition-colors ${
-            providers.discord
-              ? "bg-[#5865F2] text-white border-[#5865F2] hover:opacity-90"
-              : "bg-[var(--secondary)] text-[var(--muted-foreground)] border-[var(--border)] hover:border-[var(--primary)]"
-          }`}
-        >
-          CONTINUE WITH DISCORD
-          <ArrowRight className="h-4 w-4" />
-        </a>
+        {providers.discord ? (
+          <a
+            href={`${API_URL}/auth/discord?next=${encodeURIComponent(nextPath)}`}
+            className="w-full h-11 px-4 inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border transition-colors bg-[#5865F2] text-white border-[#5865F2] hover:opacity-90"
+          >
+            CONTINUE WITH DISCORD
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="w-full h-11 px-4 inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border bg-[var(--secondary)] text-[var(--muted-foreground)] border-[var(--border)] opacity-60"
+          >
+            CONTINUE WITH DISCORD
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        )}
         {!providers.discord && (
           <p className="text-[11px] text-[var(--muted-foreground)]">
             Discord login is not configured yet.

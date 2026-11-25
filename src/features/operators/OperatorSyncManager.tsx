@@ -14,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { api, getErrorMessage } from "@/lib/api";
-import { OPERATOR_CLASSES } from "@/lib/operators-catalog";
+import { OPERATOR_CLASSES } from "@/lib/constants";
 import type { Operator } from "@/lib/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUiStore } from "@/stores/useUiStore";

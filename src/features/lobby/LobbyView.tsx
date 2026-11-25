@@ -17,7 +17,7 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
-import { OPERATOR_CLASSES } from "@/lib/operators-catalog";
+import { OPERATOR_CLASSES } from "@/lib/constants";
 import {
   PLAYER_COLORS,
   type FeedItem,

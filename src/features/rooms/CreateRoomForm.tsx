@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { api, getErrorMessage } from "@/lib/api";
-import { OPERATOR_CLASSES } from "@/lib/operators-catalog";
+import { OPERATOR_CLASSES } from "@/lib/constants";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUiStore } from "@/stores/useUiStore";
 import { Button } from "@/components/Button";

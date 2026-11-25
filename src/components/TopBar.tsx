@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Shield } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./Button";
@@ -28,6 +28,9 @@ export function TopBar() {
     pathname === "/games" ||
     pathname.startsWith("/games/") ||
     pathname.startsWith("/guess-who-am-i");
+  const adminActive =
+    pathname === "/admin" || pathname.startsWith("/admin/");
+  const isSuperAdmin = user?.roleId === "super-administrator";
 
   return (
     <header className="sticky top-0 z-40 h-14 border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur">
@@ -58,6 +61,19 @@ export function TopBar() {
           >
             GAMES
           </Link>
+
+          {isSuperAdmin && (
+            <Link
+              href="/admin"
+              className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs tracking-wider border transition-colors shrink-0 ${adminActive
+                  ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                  : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                }`}
+            >
+              <Shield className="h-3.5 w-3.5" />
+              ADMIN
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">

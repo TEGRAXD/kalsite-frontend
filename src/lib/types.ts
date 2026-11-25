@@ -1,10 +1,21 @@
+export type RoleId = "super-administrator" | "administrator" | "user" | string;
+
+export interface RoleSummary {
+  id: RoleId;
+  name: string;
+  description?: string | null;
+}
+
 export interface User {
   id: string;
   discordId: string;
   username: string;
   globalName: string | null;
   avatar: string | null;
+  roleId: RoleId;
+  role?: RoleSummary | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Operator {
