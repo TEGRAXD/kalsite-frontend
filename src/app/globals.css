@@ -1,0 +1,99 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f3f7f4;
+  --foreground: #0b140f;
+  --card: #ffffff;
+  --card-foreground: #0b140f;
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  --secondary: #e5efe9;
+  --secondary-foreground: #192d22;
+  --muted: #ecf3ef;
+  --muted-foreground: #4a6355;
+  --border: #cde0d5;
+  --input: #eaf2ed;
+  --ring: #10b981;
+  --accent-green: #10b981;
+  --danger: #dc2626;
+  --success: #059669;
+  --warning: #d97706;
+}
+
+.dark {
+  --background: #070d0a;
+  --foreground: #e5f0ea;
+  --card: #0c1712;
+  --card-foreground: #e5f0ea;
+  --primary: #34d399;
+  --primary-foreground: #04150d;
+  --secondary: #13241c;
+  --secondary-foreground: #d5e7dd;
+  --muted: #0f1d16;
+  --muted-foreground: #7b9687;
+  --border: #1b3126;
+  --input: #09130e;
+  --ring: #34d399;
+  --accent-green: #34d399;
+  --danger: #f87171;
+  --success: #34d399;
+  --warning: #fbbf24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+html,
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+.tactical-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--border) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--border) 45%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@keyframes active-turn-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.55), 0 0 22px rgba(52, 211, 153, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.9), 0 0 34px rgba(52, 211, 153, 0.34);
+  }
+}
+
+.active-turn-card {
+  animation: active-turn-pulse 2.2s ease-in-out infinite;
+}
+
+button,
+[role="button"],
+label,
+select {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
