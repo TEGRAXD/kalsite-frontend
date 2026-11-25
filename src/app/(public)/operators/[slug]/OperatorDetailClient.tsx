@@ -43,6 +43,8 @@ export function OperatorDetailClient({
   const [operatorClass, setOperatorClass] = useState(op.operatorClass);
   const [branch, setBranch] = useState(op.branch);
   const [faction, setFaction] = useState(op.faction ?? "");
+  const [gender, setGender] = useState(op.gender ?? "");
+  const [race, setRace] = useState(op.race ?? "");
   const [releaseOrder, setReleaseOrder] = useState(
     op.releaseOrder !== null && op.releaseOrder !== undefined
       ? String(op.releaseOrder)
@@ -62,6 +64,8 @@ export function OperatorDetailClient({
     setOperatorClass(op.operatorClass);
     setBranch(op.branch);
     setFaction(op.faction ?? "");
+    setGender(op.gender ?? "");
+    setRace(op.race ?? "");
     setReleaseOrder(
       op.releaseOrder !== null && op.releaseOrder !== undefined
         ? String(op.releaseOrder)
@@ -126,6 +130,8 @@ export function OperatorDetailClient({
         formData.append("operatorClass", operatorClass);
         formData.append("branch", branch.trim());
         formData.append("faction", faction.trim());
+        formData.append("gender", gender.trim());
+        formData.append("race", race.trim());
         formData.append("releaseOrder", releaseOrder.trim());
         formData.append("isEnabled", String(isEnabled));
         formData.append("image", imageFile);
@@ -145,6 +151,8 @@ export function OperatorDetailClient({
           operatorClass,
           branch: branch.trim(),
           faction: faction.trim() || null,
+          gender: gender.trim() || null,
+          race: race.trim() || null,
           releaseOrder: releaseOrder.trim() === "" ? null : Number(releaseOrder),
           isEnabled,
           sourceImageUrl: sourceImageUrl.trim() || undefined,
@@ -281,12 +289,15 @@ export function OperatorDetailClient({
           )}
         </div>
 
-        <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+        <dl className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
           {[
             { label: "CLASS", value: op.operatorClass },
             { label: "BRANCH", value: op.branch },
             { label: "RARITY", value: `${op.rarity}★` },
             { label: "CN NAME", value: op.cnName },
+            { label: "GENDER", value: op.gender || "—" },
+            { label: "RACE", value: op.race || "—" },
+            { label: "FACTION", value: op.faction || "—" },
           ].map((attr) => (
             <div
               key={attr.label}
@@ -422,6 +433,34 @@ export function OperatorDetailClient({
                 onChange={(e) => setFaction(e.target.value)}
                 maxLength={80}
                 placeholder="e.g. Rhodes Island"
+                className="w-full h-9 px-3 bg-[var(--input)] border border-[var(--border)] text-xs focus:outline-none focus:border-[var(--primary)]"
+              />
+            </label>
+
+            <label className="space-y-1.5 text-xs">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
+                GENDER (OPTIONAL)
+              </span>
+              <input
+                type="text"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                maxLength={30}
+                placeholder="e.g. Female / Male"
+                className="w-full h-9 px-3 bg-[var(--input)] border border-[var(--border)] text-xs focus:outline-none focus:border-[var(--primary)]"
+              />
+            </label>
+
+            <label className="space-y-1.5 text-xs">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
+                RACE (OPTIONAL)
+              </span>
+              <input
+                type="text"
+                value={race}
+                onChange={(e) => setRace(e.target.value)}
+                maxLength={60}
+                placeholder="e.g. Feline / Sarkaz"
                 className="w-full h-9 px-3 bg-[var(--input)] border border-[var(--border)] text-xs focus:outline-none focus:border-[var(--primary)]"
               />
             </label>

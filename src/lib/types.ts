@@ -29,6 +29,8 @@ export interface Operator {
   branch: string;
   faction?: string | null;
   factionLogoUrl?: string | null;
+  gender?: string | null;
+  race?: string | null;
   imageUrl: string;
   releaseOrder?: number | null;
   isEnabled?: boolean;
@@ -45,6 +47,8 @@ export interface PublicOperatorCard {
   branch: string;
   faction?: string | null;
   factionLogoUrl?: string | null;
+  gender?: string | null;
+  race?: string | null;
   imageUrl: string;
 }
 
