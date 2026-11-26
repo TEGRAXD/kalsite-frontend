@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Clock,
+  Eye,
   EyeOff,
   Heart,
   LayoutGrid,
@@ -52,12 +53,17 @@ interface GameTableProps {
 function OpponentCard({
   player,
   maxLives,
+  isMasked,
+  onToggleMask,
 }: {
   player: PersonalizedGamePlayer;
   maxLives: number;
+  isMasked: boolean;
+  onToggleMask: () => void;
 }) {
   const solved = Boolean(player.guessedAt);
   const eliminated = Boolean(player.eliminatedAt);
+  const canToggle = Boolean(player.operator);
 
   return (
     <div
@@ -102,62 +108,104 @@ function OpponentCard({
           )}
         </div>
 
-        <div
-          className="flex items-center gap-0.5 text-rose-400 shrink-0"
-          aria-label={`${player.livesRemaining} lives remaining`}
-        >
-          {Array.from({ length: maxLives }).map((_, i) => (
-            <Heart
-              key={i}
-              className={`h-3.5 w-3.5 ${i < player.livesRemaining ? "fill-current" : "opacity-25"
-                }`}
-            />
-          ))}
+        <div className="flex items-center gap-2 shrink-0">
+          {canToggle && (
+            <button
+              type="button"
+              onClick={onToggleMask}
+              title={isMasked ? "Click to reveal card" : "Click to hide card"}
+              aria-label={
+                isMasked
+                  ? `Reveal ${player.globalName || player.username}'s card`
+                  : `Hide ${player.globalName || player.username}'s card`
+              }
+              className="text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+            >
+              {isMasked ? (
+                <EyeOff className="h-3.5 w-3.5" />
+              ) : (
+                <Eye className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
+          <div
+            className="flex items-center gap-0.5 text-rose-400"
+            aria-label={`${player.livesRemaining} lives remaining`}
+          >
+            {Array.from({ length: maxLives }).map((_, i) => (
+              <Heart
+                key={i}
+                className={`h-3.5 w-3.5 ${i < player.livesRemaining ? "fill-current" : "opacity-25"
+                  }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* OPERATOR CONTENT */}
-      <div className="relative p-4">
-        {player.operator ? (
-          <>
-            {player.operator.factionLogoUrl && (
-              <img
-                src={resolveAssetUrl(player.operator.factionLogoUrl) ?? ""}
-                alt=""
-                aria-hidden="true"
-                className="absolute right-3 bottom-2 h-16 w-16 object-contain opacity-15 invert dark:invert-0 select-none pointer-events-none"
-              />
-            )}
-
-            <div className="relative flex items-start gap-3.5 min-w-0">
-              <OperatorPortraitBadge operator={player.operator} size="lg" />
-              <div className="min-w-0 flex-1 space-y-1">
-                <p className="text-sm font-bold leading-snug break-words">
-                  {formatOperatorName(player.operator)}
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <RarityStars rarity={player.operator.rarity} />
-                  <ClassBadge operatorClass={player.operator.operatorClass} />
-                  <span className="text-[11px] text-[var(--muted-foreground)]">
-                    {player.operator.branch}
-                  </span>
-                </div>
-                <p className="text-[11px] text-[var(--muted-foreground)] break-words">
-                  {player.operator.cnName}
-                  {player.operator.faction ? ` · ${player.operator.faction}` : ""}
-                </p>
+      {/* OPERATOR CONTENT (CLICK TO HIDE / REVEAL) */}
+      {canToggle ? (
+        <button
+          type="button"
+          onClick={onToggleMask}
+          className="relative w-full text-left p-4 block hover:bg-[var(--background)]/30 transition-colors cursor-pointer"
+          title={isMasked ? "Click to reveal card" : "Click to hide card"}
+        >
+          {isMasked ? (
+            <div className="w-full py-3.5 border border-dashed border-[var(--border)] bg-[var(--background)]/60 flex flex-col items-center justify-center gap-1 text-xs">
+              <div className="flex items-center gap-2 text-[var(--primary)]">
+                <EyeOff className="h-4 w-4" />
+                <span className="tracking-[0.2em] font-bold">HIDDEN</span>
               </div>
+              <span className="text-[10px] text-[var(--muted-foreground)]">
+                Click to reveal
+              </span>
             </div>
-          </>
-        ) : (
+          ) : (
+            <>
+              {player.operator!.factionLogoUrl && (
+                <img
+                  src={resolveAssetUrl(player.operator!.factionLogoUrl) ?? ""}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute right-3 bottom-2 h-16 w-16 object-contain opacity-15 invert dark:invert-0 select-none pointer-events-none"
+                />
+              )}
+
+              <div className="relative flex items-start gap-3.5 min-w-0">
+                <OperatorPortraitBadge operator={player.operator!} size="lg" />
+                <div className="min-w-0 flex-1 space-y-1">
+                  <p className="text-sm font-bold leading-snug break-words">
+                    {formatOperatorName(player.operator!)}
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <RarityStars rarity={player.operator!.rarity} />
+                    <ClassBadge operatorClass={player.operator!.operatorClass} />
+                    <span className="text-[11px] text-[var(--muted-foreground)]">
+                      {player.operator!.branch}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--muted-foreground)] break-words">
+                    {player.operator!.cnName}
+                    {player.operator!.faction
+                      ? ` · ${player.operator!.faction}`
+                      : ""}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+        </button>
+      ) : (
+        <div className="relative p-4">
           <div className="w-full py-3 flex items-center justify-center gap-2 text-xs text-[var(--muted-foreground)]">
             <EyeOff className="h-4 w-4 text-[var(--primary)]" />
             <span className="tracking-[0.25em] font-bold text-[var(--primary)]">
               [ ??? ]
             </span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -182,9 +230,47 @@ export function GameTable({
   const [guessResetCount, setGuessResetCount] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [mobileTab, setMobileTab] = useState<"table" | "chat">("table");
+  const [hideAllCards, setHideAllCards] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("kalsite:streamer-hide-cards") === "1";
+  });
+  const [cardVisibilityOverrides, setCardVisibilityOverrides] = useState<
+    Record<string, boolean>
+  >({});
   const [seenFeedCount, setSeenFeedCount] = useState(
     gameState.feed.length + gameState.spectatorFeed.length,
   );
+
+  useEffect(() => {
+    // Reset per-card overrides when a new match starts so streamer mode stays safe
+    setCardVisibilityOverrides({});
+  }, [gameState.gameId]);
+
+  function toggleHideAll() {
+    const next = !hideAllCards;
+    setHideAllCards(next);
+    setCardVisibilityOverrides({});
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "kalsite:streamer-hide-cards",
+        next ? "1" : "0",
+      );
+    }
+  }
+
+  function isCardMasked(userId: string): boolean {
+    if (userId in cardVisibilityOverrides) {
+      return Boolean(cardVisibilityOverrides[userId]);
+    }
+    return hideAllCards;
+  }
+
+  function toggleCardMask(userId: string) {
+    setCardVisibilityOverrides((prev) => {
+      const current = userId in prev ? Boolean(prev[userId]) : hideAllCards;
+      return { ...prev, [userId]: !current };
+    });
+  }
 
   const totalFeedCount = gameState.feed.length + gameState.spectatorFeed.length;
   const unreadChatCount =
@@ -348,15 +434,39 @@ export function GameTable({
         >
           {/* OTHER PLAYERS (OR ALL PLAYERS FOR SPECTATORS) */}
           <section className="space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
               <span>
                 {gameState.isSpectator
                   ? `PLAYERS (${otherPlayers.length})`
                   : `OTHER PLAYERS (${otherPlayers.length})`}
               </span>
-              {!gameState.isSpectator && (
-                <span>YOU CAN SEE THEIR OPERATORS</span>
-              )}
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline text-[10px]">
+                  CLICK CARD TO HIDE / REVEAL
+                </span>
+                <button
+                  type="button"
+                  onClick={toggleHideAll}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider border transition-colors ${
+                    hideAllCards
+                      ? "border-[var(--primary)] bg-[var(--primary)]/15 text-[var(--primary)]"
+                      : "border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--foreground)]"
+                  }`}
+                  title="Hide or show all other player cards (saved for streamer mode)"
+                >
+                  {hideAllCards ? (
+                    <>
+                      <Eye className="h-3 w-3" />
+                      SHOW ALL
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="h-3 w-3" />
+                      HIDE ALL
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             <div
@@ -368,6 +478,8 @@ export function GameTable({
                   key={player.userId}
                   player={player}
                   maxLives={maxLives}
+                  isMasked={isCardMasked(player.userId)}
+                  onToggleMask={() => toggleCardMask(player.userId)}
                 />
               ))}
             </div>
